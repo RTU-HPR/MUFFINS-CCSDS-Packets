@@ -1,0 +1,8 @@
+#include "messages/telemetry/balloon_telemetry.h"
+#include "messages/telemetry/base_station_1_telemetry.h"
+#include "messages/telemetry/base_station_2_telemetry.h"
+#include "messages/telemetry/base_station_3_telemetry.h"
+#include "messages/telemetry/payload_telemetry.h"
+#include "messages/telecommands/balloon_telecommands.h"
+#include "messages/telecommands/base_station_telecommands.h"
+#include "messages/telecommands/payload_telecommands.h"

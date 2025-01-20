@@ -15,7 +15,7 @@ void setup()
   uint32_t epoch_time = 1234567890;
   uint16_t subseconds = 1234;
   uint16_t data_values_count = 4;
-  Converter data_values[data_values_count] = {{.f = 1.23}, {.i8 = 123}, {.i16 = 12345}, {.i32 = 1234567890}};
+  Converter data_values[data_values_count] = {{.f = 1.23}, {.ui8 = 123}, {.ui16 = 12345}, {.ui32 = 1234567890}};
   String data_format[data_values_count] = {"float", "uint8", "uint16", "uint32"};
   uint16_t data_length = 0;
 
@@ -119,7 +119,7 @@ void setup()
     }
     else if (actual_data_format[i] == "uint32")
     {
-      Serial.println(actual_data_values[i].i32);
+      Serial.println(actual_data_values[i].ui32);
     }
   }
   Serial.println();

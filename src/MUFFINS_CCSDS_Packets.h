@@ -2,13 +2,16 @@
 #include <Arduino.h>
 
 /**
- * @brief Union for converting between i32, i16, i8, float and byte array of 4 bytes
+ * @brief Union for converting between signed and unsigned integers, floats, and bytes
  */
 union Converter
 {
-  uint32_t i32;
-  uint16_t i16;
-  uint8_t i8;
+  int32_t ui32;
+  int16_t ui16;
+  int8_t ui8;
+  uint32_t ui32;
+  uint16_t ui16;
+  uint8_t ui8;
   float f;
   byte b[4];
 };

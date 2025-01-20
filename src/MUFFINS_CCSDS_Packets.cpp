@@ -60,16 +60,16 @@ byte *create_ccsds_telemetry_packet(const uint16_t &apid, const uint16_t &sequen
   for (int i = 0; i < data_values_count; i++)
   {
     // Convert value to byte array
-    if (data_format[i] == "uint8")
+    if (data_format[i] == "uint8" || data_format[i] == "int8")
     {
       packet_data[data_length++] = data_values[i].b[0];
     }
-    else if (data_format[i] == "uint16")
+    else if (data_format[i] == "uint16" || data_format[i] == "int16")
     {
       packet_data[data_length++] = data_values[i].b[1];
       packet_data[data_length++] = data_values[i].b[0];
     }
-    else if (data_format[i] == "uint32" || data_format[i] == "float")
+    else if (data_format[i] == "uint32" || data_format[i] == "int32" || data_format[i] == "float")
     {
       packet_data[data_length++] = data_values[i].b[3];
       packet_data[data_length++] = data_values[i].b[2];
@@ -190,16 +190,16 @@ void extract_ccsds_data_values(const byte *data, const uint16_t &data_values_cou
   for (int i = 0; i < data_values_count; i++)
   {
     // Read value from packet (MSB first)
-    if (data_format[i] == "uint8") // Unsigned 8-bit integer (1 byte)
+    if (data_format[i] == "uint8" || data_format[i] == "int8")
     {
       data_values[value_index].b[0] = data[parsed_bytes++];
     }
-    else if (data_format[i] == "uint16") // Unsigned 16-bit integer (2 bytes)
+    else if (data_format[i] == "uint16" || data_format[i] == "int16")
     {
       data_values[value_index].b[1] = data[parsed_bytes++];
       data_values[value_index].b[0] = data[parsed_bytes++];
     }
-    else if (data_format[i] == "uint32" || data_format[i] == "float") // Unsigned 32-bit integer of float (4 bytes)
+    else if (data_format[i] == "uint32" || data_format[i] == "int32" || data_format[i] == "float")
     {
       data_values[value_index].b[3] = data[parsed_bytes++];
       data_values[value_index].b[2] = data[parsed_bytes++];
