@@ -149,14 +149,14 @@ namespace BalloonTelemetry
     /**
      * @brief Get values from configuration data field
      *
-      * @param data Data field of configuration packet
-      * @param lora_frequency LoRa frequency
-      * @param lora_tx_power LoRa TX power
-      * @param lora_spreading_factor LoRa spreading factor
-      * @param lora_bandwidth LoRa bandwidth
-      * @param lora_coding_rate LoRa coding rate
-      * @param barometer_reference_pressure Barometer reference pressure
-      */
+     * @param data Data field of configuration packet
+     * @param lora_frequency LoRa frequency
+     * @param lora_tx_power LoRa TX power
+     * @param lora_spreading_factor LoRa spreading factor
+     * @param lora_bandwidth LoRa bandwidth
+     * @param lora_coding_rate LoRa coding rate
+     * @param barometer_reference_pressure Barometer reference pressure
+     */
     void get_values(
         const byte *data,
         float &lora_frequency,
@@ -187,7 +187,7 @@ namespace BalloonTelemetry
      * @param lora_bandwidth LoRa bandwidth
      * @param lora_coding_rate LoRa coding rate
      * @param barometer_reference_pressure Barometer reference pressure
-     * 
+     *
      * @return Pointer to configuration packet
      */
     byte *create(
@@ -261,7 +261,7 @@ namespace BalloonTelemetry
      * @param gps_altitude GPS altitude
      * @param barometer_altitude Barometer altitude
      * @param satellites Satellites
-     * 
+     *
      * @return Pointer to location packet
      */
     byte *create(
@@ -300,7 +300,7 @@ namespace BalloonTelemetry
      * @brief Get values from RWC status data field
      *
      * @param data Data field of RWC status packet
-     * @param heading Heading 
+     * @param heading Heading
      * @param angular_velocity_x Angular velocity x (miliradians/s)
      * @param angular_velocity_y Angular velocity y (miliradians/s)
      * @param angular_velocity_z Angular velocity z (miliradians/s)
@@ -334,14 +334,14 @@ namespace BalloonTelemetry
      * @param sequence_count Sequence count
      * @param epoch_time Epoch time
      * @param subseconds Subseconds
-     * @param heading Heading 
+     * @param heading Heading
      * @param angular_velocity_x Angular velocity x (miliradians/s)
      * @param angular_velocity_y Angular velocity y (miliradians/s)
      * @param angular_velocity_z Angular velocity z (miliradians/s)
      * @param motor_angular_velocity Motor angular velocity
      * @param rwc_battery_voltage RWC battery voltage
      * @param rwc_temperature RWC temperature
-     * 
+     *
      * @return Pointer to RWC status packet
      */
     byte *create(

@@ -143,7 +143,7 @@ byte *create_ccsds_telecommand_packet(const uint16_t &apid, const uint16_t &sequ
 
   packet_data[0] = packet_id >> 8;
   packet_data[1] = packet_id & 0xFF;
-  
+
   data_length = 2; // Start with 2 as packet id is first 2 bytes
 
   for (int i = 0; i < data_values_count; i++)

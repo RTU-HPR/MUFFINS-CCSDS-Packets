@@ -16,6 +16,11 @@ namespace BaseStation3Telecommands
      * @param lora_spreading_factor LoRa spreading factor
      * @param lora_bandwidth LoRa bandwidth
      * @param lora_coding_rate LoRa coding rate
+     * @param ranging_lora_frequency Ranging LoRa frequency
+     * @param ranging_lora_tx_power Ranging LoRa TX power
+     * @param ranging_lora_spreading_factor Ranging LoRa spreading factor
+     * @param ranging_lora_bandwidth Ranging LoRa bandwidth
+     * @param ranging_lora_coding_rate Ranging LoRa coding rate
      */
     void get_values(
         const byte *data,
@@ -23,13 +28,24 @@ namespace BaseStation3Telecommands
         CCSDS_Enums::LoRa_TX_Power &lora_tx_power,
         CCSDS_Enums::LoRa_Spreading_Factor &lora_spreading_factor,
         CCSDS_Enums::LoRa_Bandwidth &lora_bandwidth,
-        CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate)
+        CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate,
+        float &ranging_lora_frequency,
+        CCSDS_Enums::LoRa_TX_Power &ranging_lora_tx_power,
+        CCSDS_Enums::LoRa_Spreading_Factor &ranging_lora_spreading_factor,
+        CCSDS_Enums::LoRa_Bandwidth &ranging_lora_bandwidth,
+        CCSDS_Enums::LoRa_Coding_Rate &ranging_lora_coding_rate)
     {
       lora_frequency = float_from_bytes(data[0], data[1], data[2], data[3]);
       lora_tx_power = static_cast<CCSDS_Enums::LoRa_TX_Power>(uint8_from_bytes(data[4]));
       lora_spreading_factor = static_cast<CCSDS_Enums::LoRa_Spreading_Factor>(uint8_from_bytes(data[5]));
       lora_bandwidth = static_cast<CCSDS_Enums::LoRa_Bandwidth>(uint8_from_bytes(data[6]));
       lora_coding_rate = static_cast<CCSDS_Enums::LoRa_Coding_Rate>(uint8_from_bytes(data[7]));
+
+      ranging_lora_frequency = float_from_bytes(data[8], data[9], data[10], data[11]);
+      ranging_lora_tx_power = static_cast<CCSDS_Enums::LoRa_TX_Power>(uint8_from_bytes(data[12]));
+      ranging_lora_spreading_factor = static_cast<CCSDS_Enums::LoRa_Spreading_Factor>(uint8_from_bytes(data[13]));
+      ranging_lora_bandwidth = static_cast<CCSDS_Enums::LoRa_Bandwidth>(uint8_from_bytes(data[14]));
+      ranging_lora_coding_rate = static_cast<CCSDS_Enums::LoRa_Coding_Rate>(uint8_from_bytes(data[15]));
     }
 
     /**
@@ -42,7 +58,12 @@ namespace BaseStation3Telecommands
      * @param lora_spreading_factor LoRa spreading factor
      * @param lora_bandwidth LoRa bandwidth
      * @param lora_coding_rate LoRa coding rate
-     * 
+     * @param ranging_lora_frequency Ranging LoRa frequency
+     * @param ranging_lora_tx_power Ranging LoRa TX power
+     * @param ranging_lora_spreading_factor Ranging LoRa spreading factor
+     * @param ranging_lora_bandwidth Ranging LoRa bandwidth
+     * @param ranging_lora_coding_rate Ranging LoRa coding rate
+     *
      * @return Pointer to set configuration packet
      */
     byte *create(
@@ -52,18 +73,28 @@ namespace BaseStation3Telecommands
         const CCSDS_Enums::LoRa_TX_Power &lora_tx_power,
         const CCSDS_Enums::LoRa_Spreading_Factor &lora_spreading_factor,
         const CCSDS_Enums::LoRa_Bandwidth &lora_bandwidth,
-        const CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate)
+        const CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate,
+        const float &ranging_lora_frequency,
+        const CCSDS_Enums::LoRa_TX_Power &ranging_lora_tx_power,
+        const CCSDS_Enums::LoRa_Spreading_Factor &ranging_lora_spreading_factor,
+        const CCSDS_Enums::LoRa_Bandwidth &ranging_lora_bandwidth,
+        const CCSDS_Enums::LoRa_Coding_Rate &ranging_lora_coding_rate)
     {
       uint16_t apid = APID::BASE_STATION_3_TELECOMMAND;
       uint16_t packet_id = PacketID::SET_CONFIGURATION;
-      uint16_t data_values_count = 6;
+      uint16_t data_values_count = 10;
       Converter data_values[data_values_count] = {
           {.f = lora_frequency},
           {.ui8 = lora_tx_power},
           {.ui8 = lora_spreading_factor},
           {.ui8 = lora_bandwidth},
-          {.ui8 = lora_coding_rate}};
-      String data_format[data_values_count] = {"float", "uint8", "uint8", "uint8", "uint8"};
+          {.ui8 = lora_coding_rate},
+          {.f = ranging_lora_frequency},
+          {.ui8 = ranging_lora_tx_power},
+          {.ui8 = ranging_lora_spreading_factor},
+          {.ui8 = ranging_lora_bandwidth},
+          {.ui8 = ranging_lora_coding_rate}};
+      String data_format[data_values_count] = {"float", "uint8", "uint8", "uint8", "uint8", "float", "uint8", "uint8", "uint8", "uint8"};
       uint16_t data_length = 0;
 
       byte *packet = create_ccsds_telecommand_packet(apid, sequence_count, packet_id, data_values_count, data_format, data_values, data_length);
@@ -81,7 +112,7 @@ namespace BaseStation3Telecommands
      *
      * @param packet_length Created packet length
      * @param sequence_count Sequence count
-     * 
+     *
      * @return Pointer to request configuration packet
      */
     byte *create(
@@ -128,7 +159,7 @@ namespace BaseStation3Telecommands
      * @param sequence_count Sequence count
      * @param azimuth Azimuth
      * @param elevation Elevation
-     * 
+     *
      * @return Pointer to set angles packet
      */
     byte *create(
