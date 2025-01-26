@@ -3,7 +3,7 @@
 
 using namespace CCSDS_Enums;
 
-namespace BalloonTelecommands
+namespace BaseStation1Telecommands
 {
   namespace SetConfiguration
   {
@@ -16,7 +16,6 @@ namespace BalloonTelecommands
      * @param lora_spreading_factor LoRa spreading factor
      * @param lora_bandwidth LoRa bandwidth
      * @param lora_coding_rate LoRa coding rate
-     * @param barometer_reference_pressure Barometer reference pressure
      */
     void get_values(
         const byte *data,
@@ -24,15 +23,13 @@ namespace BalloonTelecommands
         CCSDS_Enums::LoRa_TX_Power &lora_tx_power,
         CCSDS_Enums::LoRa_Spreading_Factor &lora_spreading_factor,
         CCSDS_Enums::LoRa_Bandwidth &lora_bandwidth,
-        CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate,
-        float &barometer_reference_pressure)
+        CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate)
     {
       lora_frequency = float_from_bytes(data[0], data[1], data[2], data[3]);
       lora_tx_power = static_cast<CCSDS_Enums::LoRa_TX_Power>(uint8_from_bytes(data[4]));
       lora_spreading_factor = static_cast<CCSDS_Enums::LoRa_Spreading_Factor>(uint8_from_bytes(data[5]));
       lora_bandwidth = static_cast<CCSDS_Enums::LoRa_Bandwidth>(uint8_from_bytes(data[6]));
       lora_coding_rate = static_cast<CCSDS_Enums::LoRa_Coding_Rate>(uint8_from_bytes(data[7]));
-      barometer_reference_pressure = float_from_bytes(data[8], data[9], data[10], data[11]);
     }
 
     /**
@@ -45,7 +42,6 @@ namespace BalloonTelecommands
      * @param lora_spreading_factor LoRa spreading factor
      * @param lora_bandwidth LoRa bandwidth
      * @param lora_coding_rate LoRa coding rate
-     * @param barometer_reference_pressure Barometer reference pressure
      * 
      * @return Pointer to set configuration packet
      */
@@ -56,10 +52,9 @@ namespace BalloonTelecommands
         const CCSDS_Enums::LoRa_TX_Power &lora_tx_power,
         const CCSDS_Enums::LoRa_Spreading_Factor &lora_spreading_factor,
         const CCSDS_Enums::LoRa_Bandwidth &lora_bandwidth,
-        const CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate,
-        const float &barometer_reference_pressure)
+        const CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate)
     {
-      uint16_t apid = APID::BALLOON_TELECOMMAND;
+      uint16_t apid = APID::BASE_STATION_1_TELECOMMAND;
       uint16_t packet_id = PacketID::SET_CONFIGURATION;
       uint16_t data_values_count = 6;
       Converter data_values[data_values_count] = {
@@ -67,9 +62,8 @@ namespace BalloonTelecommands
           {.ui8 = lora_tx_power},
           {.ui8 = lora_spreading_factor},
           {.ui8 = lora_bandwidth},
-          {.ui8 = lora_coding_rate},
-          {.f = barometer_reference_pressure}};
-      String data_format[data_values_count] = {"float", "uint8", "uint8", "uint8", "uint8", "float"};
+          {.ui8 = lora_coding_rate}};
+      String data_format[data_values_count] = {"float", "uint8", "uint8", "uint8", "uint8"};
       uint16_t data_length = 0;
 
       byte *packet = create_ccsds_telecommand_packet(apid, sequence_count, packet_id, data_values_count, data_format, data_values, data_length);
@@ -94,7 +88,7 @@ namespace BalloonTelecommands
         uint8_t &packet_length,
         const uint16_t &sequence_count)
     {
-      uint16_t apid = APID::BALLOON_TELECOMMAND;
+      uint16_t apid = APID::BASE_STATION_1_TELECOMMAND;
       uint16_t packet_id = PacketID::REQUEST_CONFIGURATION;
       uint16_t data_values_count = 0;
       Converter data_values[data_values_count] = {};
@@ -109,25 +103,47 @@ namespace BalloonTelecommands
     }
   }
 
-  namespace RequestSubsystem1Status
+  namespace SetAngles
   {
     /**
-     * @brief Create a request subsystem 1 status packet
+     * @brief Get values from set angles data field
+     *
+     * @param data Data field of set angles packet
+     * @param azimuth Azimuth
+     * @param elevation Elevation
+     */
+    void get_values(
+        const byte *data,
+        float &azimuth,
+        float &elevation)
+    {
+      azimuth = float_from_bytes(data[0], data[1], data[2], data[3]);
+      elevation = float_from_bytes(data[4], data[5], data[6], data[7]);
+    }
+
+    /**
+     * @brief Create a set angles packet
      *
      * @param packet_length Created packet length
      * @param sequence_count Sequence count
+     * @param azimuth Azimuth
+     * @param elevation Elevation
      * 
-     * @return Pointer to request subsystem 1 status packet
+     * @return Pointer to set angles packet
      */
     byte *create(
         uint8_t &packet_length,
-        const uint16_t &sequence_count)
+        const uint16_t &sequence_count,
+        const float &azimuth,
+        const float &elevation)
     {
-      uint16_t apid = APID::BALLOON_TELECOMMAND;
-      uint16_t packet_id = PacketID::REQUEST_SUBSYSTEM_1_STATUS;
-      uint16_t data_values_count = 0;
-      Converter data_values[data_values_count] = {};
-      String data_format[data_values_count] = {};
+      uint16_t apid = APID::BASE_STATION_1_TELECOMMAND;
+      uint16_t packet_id = PacketID::BASE_STATION_SET_ANGLES;
+      uint16_t data_values_count = 2;
+      Converter data_values[data_values_count] = {
+          {.f = azimuth},
+          {.f = elevation}};
+      String data_format[data_values_count] = {"float", "float"};
       uint16_t data_length = 0;
 
       byte *packet = create_ccsds_telecommand_packet(apid, sequence_count, packet_id, data_values_count, data_format, data_values, data_length);
@@ -137,4 +153,5 @@ namespace BalloonTelecommands
       return packet;
     }
   }
+
 }

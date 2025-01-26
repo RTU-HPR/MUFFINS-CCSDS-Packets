@@ -4,5 +4,7 @@
 #include "messages/telemetry/base_station_3_telemetry.h"
 #include "messages/telemetry/payload_telemetry.h"
 #include "messages/telecommands/balloon_telecommands.h"
-#include "messages/telecommands/base_station_telecommands.h"
+#include "messages/telecommands/base_station_1_telecommands.h"
+#include "messages/telecommands/base_station_2_telecommands.h"
+#include "messages/telecommands/base_station_3_telecommands.h"
 #include "messages/telecommands/payload_telecommands.h"

@@ -985,6 +985,418 @@ void test_base_ranging_status()
   Serial.println("");
 }
 
+
+void test_balloon_set_configuration()
+{
+  // Create Balloon configuration
+  uint16_t sequence_count = 123;
+  float lora_frequency = 123.456;
+  CCSDS_Enums::LoRa_TX_Power lora_tx_power = CCSDS_Enums::LoRa_TX_Power::TX_POWER_20;
+  CCSDS_Enums::LoRa_Spreading_Factor lora_spreading_factor = CCSDS_Enums::LoRa_Spreading_Factor::SF_7;
+  CCSDS_Enums::LoRa_Bandwidth lora_bandwidth = CCSDS_Enums::LoRa_Bandwidth::BW_125;
+  CCSDS_Enums::LoRa_Coding_Rate lora_coding_rate = CCSDS_Enums::LoRa_Coding_Rate::CR_4_5;
+  float barometer_reference_pressure = 1234.5;
+  uint8_t packet_length;
+
+  byte *packet = BalloonTelecommands::SetConfiguration::create(packet_length, sequence_count, lora_frequency, lora_tx_power, lora_spreading_factor, lora_bandwidth, lora_coding_rate, barometer_reference_pressure);
+
+  Serial.println("Created Balloon Set Configuration Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Balloon configuration packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  float read_lora_frequency;
+  CCSDS_Enums::LoRa_TX_Power read_lora_tx_power;
+  CCSDS_Enums::LoRa_Spreading_Factor read_lora_spreading_factor;
+  CCSDS_Enums::LoRa_Bandwidth read_lora_bandwidth;
+  CCSDS_Enums::LoRa_Coding_Rate read_lora_coding_rate;
+  float read_barometer_reference_pressure;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  BalloonTelecommands::SetConfiguration::get_values(read_data, read_lora_frequency, read_lora_tx_power, read_lora_spreading_factor, read_lora_bandwidth, read_lora_coding_rate, read_barometer_reference_pressure);
+
+  Serial.println("Read Balloon Set Configuration Packet: ");
+
+  for (int i = 0; i < read_data_length; i++)
+  {
+    Serial.print(read_data[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::BALLOON_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::BALLOON_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::SET_CONFIGURATION) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::SET_CONFIGURATION == read_packet_id));
+  Serial.println("Original LoRa Frequency: " + String(lora_frequency) + " Read LoRa Frequency: " + String(read_lora_frequency) + " Match: " + String(lora_frequency == read_lora_frequency));
+  Serial.println("Original LoRa TX Power: " + String(static_cast<uint8_t>(lora_tx_power)) + " Read LoRa TX Power: " + String(static_cast<uint8_t>(read_lora_tx_power)) + " Match: " + String(static_cast<uint8_t>(lora_tx_power) == static_cast<uint8_t>(read_lora_tx_power)));
+  Serial.println("Original LoRa Spreading Factor: " + String(static_cast<uint8_t>(lora_spreading_factor)) + " Read LoRa Spreading Factor: " + String(static_cast<uint8_t>(read_lora_spreading_factor)) + " Match: " + String(static_cast<uint8_t>(lora_spreading_factor) == static_cast<uint8_t>(read_lora_spreading_factor)));
+  Serial.println("Original LoRa Bandwidth: " + String(static_cast<uint8_t>(lora_bandwidth)) + " Read LoRa Bandwidth: " + String(static_cast<uint8_t>(read_lora_bandwidth)) + " Match: " + String(static_cast<uint8_t>(lora_bandwidth) == static_cast<uint8_t>(read_lora_bandwidth)));
+  Serial.println("Original LoRa Coding Rate: " + String(static_cast<uint8_t>(lora_coding_rate)) + " Read LoRa Coding Rate: " + String(static_cast<uint8_t>(read_lora_coding_rate)) + " Match: " + String(static_cast<uint8_t>(lora_coding_rate) == static_cast<uint8_t>(read_lora_coding_rate)));
+  Serial.println("Original Barometer Reference Pressure: " + String(barometer_reference_pressure) + " Read Barometer Reference Pressure: " + String(read_barometer_reference_pressure) + " Match: " + String(barometer_reference_pressure == read_barometer_reference_pressure));
+  Serial.println("");
+}
+
+void test_balloon_request_configuration()
+{
+  // Create Balloon request configuration
+  uint16_t sequence_count = 123;
+  uint8_t packet_length;
+
+  byte *packet = BalloonTelecommands::RequestConfiguration::create(packet_length, sequence_count);
+
+  Serial.println("Created Balloon Request Configuration Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Balloon request configuration packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  Serial.println("Read Balloon Request Configuration Data length == 0? " + String(read_data_length == 0));
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::BALLOON_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::BALLOON_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::REQUEST_CONFIGURATION) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::REQUEST_CONFIGURATION == read_packet_id));
+  Serial.println("");
+}
+
+void test_balloon_request_rwc_status()
+{
+  // Create Balloon request RWC status
+  uint16_t sequence_count = 123;
+  uint8_t packet_length;
+
+  byte *packet = BalloonTelecommands::RequestSubsystem1Status::create(packet_length, sequence_count);
+
+  Serial.println("Created Balloon Request RWC Status Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Balloon request RWC status packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  Serial.println("Read Balloon Request RWC Status Data length == 0? " + String(read_data_length == 0));
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::BALLOON_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::BALLOON_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::REQUEST_SUBSYSTEM_1_STATUS) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::REQUEST_SUBSYSTEM_1_STATUS == read_packet_id));
+  Serial.println("");
+}
+
+void test_payload_set_configuration()
+{
+  // Create Payload configuration
+  uint16_t sequence_count = 123;
+  float lora_frequency = 123.456;
+  CCSDS_Enums::LoRa_TX_Power lora_tx_power = CCSDS_Enums::LoRa_TX_Power::TX_POWER_20;
+  CCSDS_Enums::LoRa_Spreading_Factor lora_spreading_factor = CCSDS_Enums::LoRa_Spreading_Factor::SF_7;
+  CCSDS_Enums::LoRa_Bandwidth lora_bandwidth = CCSDS_Enums::LoRa_Bandwidth::BW_125;
+  CCSDS_Enums::LoRa_Coding_Rate lora_coding_rate = CCSDS_Enums::LoRa_Coding_Rate::CR_4_5;
+  float barometer_reference_pressure = 1234.5;
+  uint8_t packet_length;
+
+  byte *packet = PayloadTelecommands::SetConfiguration::create(packet_length, sequence_count, lora_frequency, lora_tx_power, lora_spreading_factor, lora_bandwidth, lora_coding_rate, barometer_reference_pressure);
+
+  Serial.println("Created Payload Set Configuration Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Payload configuration packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  float read_lora_frequency;
+  CCSDS_Enums::LoRa_TX_Power read_lora_tx_power;
+  CCSDS_Enums::LoRa_Spreading_Factor read_lora_spreading_factor;
+  CCSDS_Enums::LoRa_Bandwidth read_lora_bandwidth;
+  CCSDS_Enums::LoRa_Coding_Rate read_lora_coding_rate;
+  float read_barometer_reference_pressure;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  PayloadTelecommands::SetConfiguration::get_values(read_data, read_lora_frequency, read_lora_tx_power, read_lora_spreading_factor, read_lora_bandwidth, read_lora_coding_rate, read_barometer_reference_pressure);
+
+  Serial.println("Read Payload Set Configuration Packet: ");
+
+  for (int i = 0; i < read_data_length; i++)
+  {
+    Serial.print(read_data[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::PAYLOAD_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::PAYLOAD_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::SET_CONFIGURATION) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::SET_CONFIGURATION == read_packet_id));
+  Serial.println("Original LoRa Frequency: " + String(lora_frequency) + " Read LoRa Frequency: " + String(read_lora_frequency) + " Match: " + String(lora_frequency == read_lora_frequency));
+  Serial.println("Original LoRa TX Power: " + String(static_cast<uint8_t>(lora_tx_power)) + " Read LoRa TX Power: " + String(static_cast<uint8_t>(read_lora_tx_power)) + " Match: " + String(static_cast<uint8_t>(lora_tx_power) == static_cast<uint8_t>(read_lora_tx_power)));
+  Serial.println("Original LoRa Spreading Factor: " + String(static_cast<uint8_t>(lora_spreading_factor)) + " Read LoRa Spreading Factor: " + String(static_cast<uint8_t>(read_lora_spreading_factor)) + " Match: " + String(static_cast<uint8_t>(lora_spreading_factor) == static_cast<uint8_t>(read_lora_spreading_factor)));
+  Serial.println("Original LoRa Bandwidth: " + String(static_cast<uint8_t>(lora_bandwidth)) + " Read LoRa Bandwidth: " + String(static_cast<uint8_t>(read_lora_bandwidth)) + " Match: " + String(static_cast<uint8_t>(lora_bandwidth) == static_cast<uint8_t>(read_lora_bandwidth)));
+  Serial.println("Original LoRa Coding Rate: " + String(static_cast<uint8_t>(lora_coding_rate)) + " Read LoRa Coding Rate: " + String(static_cast<uint8_t>(read_lora_coding_rate)) + " Match: " + String(static_cast<uint8_t>(lora_coding_rate) == static_cast<uint8_t>(read_lora_coding_rate)));
+  Serial.println("Original Barometer Reference Pressure: " + String(barometer_reference_pressure) + " Read Barometer Reference Pressure: " + String(read_barometer_reference_pressure) + " Match: " + String(barometer_reference_pressure == read_barometer_reference_pressure));
+  Serial.println("");
+}
+
+void test_payload_request_configuration()
+{
+  // Create Payload request configuration
+  uint16_t sequence_count = 123;
+  uint8_t packet_length;
+
+  byte *packet = PayloadTelecommands::RequestConfiguration::create(packet_length, sequence_count);
+
+  Serial.println("Created Payload Request Configuration Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Payload request configuration packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  Serial.println("Read Payload Request Configuration Data length == 0? " + String(read_data_length == 0));
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::PAYLOAD_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::PAYLOAD_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::REQUEST_CONFIGURATION) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::REQUEST_CONFIGURATION == read_packet_id));
+  Serial.println("");
+}
+
+void test_payload_request_heated_container_status()
+{
+  // Create Payload request heated container status
+  uint16_t sequence_count = 123;
+  uint8_t packet_length;
+
+  byte *packet = PayloadTelecommands::RequestSubsystem1Status::create(packet_length, sequence_count);
+
+  Serial.println("Created Payload Request Heated Container Status Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Payload request heated container status packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  Serial.println("Read Payload Request Heated Container Status Data length == 0? " + String(read_data_length == 0));
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::PAYLOAD_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::PAYLOAD_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::REQUEST_SUBSYSTEM_1_STATUS) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::REQUEST_SUBSYSTEM_1_STATUS == read_packet_id));
+  Serial.println("");
+}
+
+void test_base_set_configuration()
+{
+  // Create Base configuration
+  uint16_t sequence_count = 123;
+  float lora_frequency = 123.456;
+  CCSDS_Enums::LoRa_TX_Power lora_tx_power = CCSDS_Enums::LoRa_TX_Power::TX_POWER_20;
+  CCSDS_Enums::LoRa_Spreading_Factor lora_spreading_factor = CCSDS_Enums::LoRa_Spreading_Factor::SF_7;
+  CCSDS_Enums::LoRa_Bandwidth lora_bandwidth = CCSDS_Enums::LoRa_Bandwidth::BW_125;
+  CCSDS_Enums::LoRa_Coding_Rate lora_coding_rate = CCSDS_Enums::LoRa_Coding_Rate::CR_4_5;
+  uint8_t packet_length;
+
+  byte *packet = BaseStation1Telecommands::SetConfiguration::create(packet_length, sequence_count, lora_frequency, lora_tx_power, lora_spreading_factor, lora_bandwidth, lora_coding_rate);
+
+  Serial.println("Created Base Set Configuration Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Base configuration packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  float read_lora_frequency;
+  CCSDS_Enums::LoRa_TX_Power read_lora_tx_power;
+  CCSDS_Enums::LoRa_Spreading_Factor read_lora_spreading_factor;
+  CCSDS_Enums::LoRa_Bandwidth read_lora_bandwidth;
+  CCSDS_Enums::LoRa_Coding_Rate read_lora_coding_rate;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  BaseStation1Telecommands::SetConfiguration::get_values(read_data, read_lora_frequency, read_lora_tx_power, read_lora_spreading_factor, read_lora_bandwidth, read_lora_coding_rate);
+
+  Serial.println("Read Base Set Configuration Packet: ");
+
+  for (int i = 0; i < read_data_length; i++)
+  {
+    Serial.print(read_data[i], HEX);
+    Serial.print(" ");
+  }
+
+  Serial.println();
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::BASE_STATION_1_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::BASE_STATION_1_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::SET_CONFIGURATION) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::SET_CONFIGURATION == read_packet_id));
+  Serial.println("Original LoRa Frequency: " + String(lora_frequency) + " Read LoRa Frequency: " + String(read_lora_frequency) + " Match: " + String(lora_frequency == read_lora_frequency));
+  Serial.println("Original LoRa TX Power: " + String(static_cast<uint8_t>(lora_tx_power)) + " Read LoRa TX Power: " + String(static_cast<uint8_t>(read_lora_tx_power)) + " Match: " + String(static_cast<uint8_t>(lora_tx_power) == static_cast<uint8_t>(read_lora_tx_power)));
+  Serial.println("Original LoRa Spreading Factor: " + String(static_cast<uint8_t>(lora_spreading_factor)) + " Read LoRa Spreading Factor: " + String(static_cast<uint8_t>(read_lora_spreading_factor)) + " Match: " + String(static_cast<uint8_t>(lora_spreading_factor) == static_cast<uint8_t>(read_lora_spreading_factor)));
+  Serial.println("Original LoRa Bandwidth: " + String(static_cast<uint8_t>(lora_bandwidth)) + " Read LoRa Bandwidth: " + String(static_cast<uint8_t>(read_lora_bandwidth)) + " Match: " + String(static_cast<uint8_t>(lora_bandwidth) == static_cast<uint8_t>(read_lora_bandwidth)));
+  Serial.println("Original LoRa Coding Rate: " + String(static_cast<uint8_t>(lora_coding_rate)) + " Read LoRa Coding Rate: " + String(static_cast<uint8_t>(read_lora_coding_rate)) + " Match: " + String(static_cast<uint8_t>(lora_coding_rate) == static_cast<uint8_t>(read_lora_coding_rate)));
+  Serial.println("");
+}
+
+void test_base_request_configuration()
+{
+  // Create Base request configuration
+  uint16_t sequence_count = 123;
+  uint8_t packet_length;
+
+  byte *packet = BaseStation1Telecommands::RequestConfiguration::create(packet_length, sequence_count);
+
+  Serial.println("Created Base Request Configuration Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Base request configuration packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  Serial.println("Read Base Request Configuration Data length == 0? " + String(read_data_length == 0));
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::BASE_STATION_1_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::BASE_STATION_1_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::REQUEST_CONFIGURATION) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::REQUEST_CONFIGURATION == read_packet_id));
+  Serial.println("");
+}
+
+void test_base_set_angles()
+{
+  // Create Base set angles
+  uint16_t sequence_count = 123;
+  float azimuth = 123.45;
+  float elevation = 123.45;
+  uint8_t packet_length;
+
+  byte *packet = BaseStation1Telecommands::SetAngles::create(packet_length, sequence_count, azimuth, elevation);
+
+  Serial.println("Created Base Set Angles Packet: ");
+
+  for (int i = 8; i < packet_length; i++)
+  {
+    Serial.print(packet[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Get values from Base set angles packet and compare to expected values
+  uint16_t read_apid;
+  uint16_t read_sequence_count;
+  uint16_t read_packet_id;
+  float read_azimuth;
+  float read_elevation;
+  byte *read_data;
+  uint16_t read_data_length;
+
+  parse_ccsds_telecommand(packet, read_apid, read_sequence_count, read_packet_id, read_data, read_data_length);
+
+  BaseStation1Telecommands::SetAngles::get_values(read_data, read_azimuth, read_elevation);
+
+  Serial.println("Read Base Set Angles Packet: ");
+
+  for (int i = 0; i < read_data_length; i++)
+  {
+    Serial.print(read_data[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
+  // Compare values
+  Serial.println("Original APID: " + String(CCSDS_Enums::APID::BASE_STATION_1_TELECOMMAND) + " Read APID: " + String(read_apid) + " Match: " + String(CCSDS_Enums::APID::BASE_STATION_1_TELECOMMAND == read_apid));
+  Serial.println("Original Sequence Count: " + String(sequence_count) + " Read Sequence Count: " + String(read_sequence_count) + " Match: " + String(sequence_count == read_sequence_count));
+  Serial.println("Original Packet ID: " + String(CCSDS_Enums::PacketID::BASE_STATION_SET_ANGLES) + " Read Packet ID: " + String(read_packet_id) + " Match: " + String(CCSDS_Enums::PacketID::BASE_STATION_SET_ANGLES == read_packet_id));
+  Serial.println("Original Azimuth: " + String(azimuth) + " Read Azimuth: " + String(read_azimuth) + " Match: " + String(azimuth == read_azimuth));
+  Serial.println("Original Elevation: " + String(elevation) + " Read Elevation: " + String(read_elevation) + " Match: " + String(elevation == read_elevation));
+  Serial.println("");
+}
+
+
+
 void setup()
 {
   Serial.begin(115200);
@@ -1042,6 +1454,38 @@ void setup()
   test_base_ranging_status();
   Serial.println("--------------------------------------------------");
   Serial.println("");
+
+  Serial.println("Balloon Telecommand Tests:");
+  Serial.println("");
+  Serial.println("--------------------------------------------------");
+  test_balloon_set_configuration();
+  Serial.println("--------------------------------------------------");
+  test_balloon_request_configuration();
+  Serial.println("--------------------------------------------------");
+  test_balloon_request_rwc_status();
+  Serial.println("--------------------------------------------------");
+  Serial.println("");
+
+  Serial.println("Payload Telecommand Tests:");
+  Serial.println("");
+  Serial.println("--------------------------------------------------");
+  test_payload_set_configuration();
+  Serial.println("--------------------------------------------------");
+  test_payload_request_configuration();
+  Serial.println("--------------------------------------------------");
+  test_payload_request_heated_container_status();
+  Serial.println("--------------------------------------------------");
+  Serial.println("");
+
+  Serial.println("Base Station Telecommand Tests:");
+  Serial.println("");
+  Serial.println("--------------------------------------------------");
+  test_base_set_configuration();
+  Serial.println("--------------------------------------------------");
+  test_base_request_configuration();
+  Serial.println("--------------------------------------------------");
+  test_base_set_angles();
+  Serial.println("--------------------------------------------------");
 
   Serial.println("All tests done!");
 }

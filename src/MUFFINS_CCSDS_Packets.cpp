@@ -137,6 +137,53 @@ byte *create_ccsds_telemetry_packet(const uint16_t &apid, const uint16_t &sequen
   return packet;
 }
 
+byte *create_ccsds_telecommand_packet(const uint16_t &apid, const uint16_t &sequence_count, const uint16_t &packet_id, const uint16_t &data_values_count, const String *data_format, const Converter *data_values, uint16_t &data_length)
+{
+  byte packet_data[250]; // LoRa max packet length is 256 bytes, but taking out 6 bytes for primary header
+
+  packet_data[0] = packet_id >> 8;
+  packet_data[1] = packet_id & 0xFF;
+  
+  data_length = 2; // Start with 2 as packet id is first 2 bytes
+
+  for (int i = 0; i < data_values_count; i++)
+  {
+    // Convert value to byte array
+    if (data_format[i] == "uint8" || data_format[i] == "int8")
+    {
+      packet_data[data_length++] = data_values[i].b[0];
+    }
+    else if (data_format[i] == "uint16" || data_format[i] == "int16")
+    {
+      packet_data[data_length++] = data_values[i].b[1];
+      packet_data[data_length++] = data_values[i].b[0];
+    }
+    else if (data_format[i] == "uint32" || data_format[i] == "int32" || data_format[i] == "float")
+    {
+      packet_data[data_length++] = data_values[i].b[3];
+      packet_data[data_length++] = data_values[i].b[2];
+      packet_data[data_length++] = data_values[i].b[1];
+      packet_data[data_length++] = data_values[i].b[0];
+    }
+  }
+
+  data_length -= 2; // Packet id doesnt count toward data length, as it is known that it will be first 2 bytes
+
+  // Create full packet
+  byte *primary_header = create_ccsds_primary_header(apid, sequence_count, data_length);
+
+  byte *packet = new byte[8 + data_length];
+
+  // Add primary header and data to packet
+  memcpy(packet, primary_header, 6);
+  memcpy(packet + 6, packet_data, 2 + data_length);
+
+  // Clean up
+  delete[] primary_header;
+
+  return packet;
+}
+
 byte *create_ccsds_string_telemetry_packet(const uint16_t &apid, const uint16_t &sequence_count, const uint32_t &epoch_time, const uint16_t &subseconds, const String &data_string, uint16_t &data_length)
 {
   byte packet_data[244]; // LoRa max packet length is 256 bytes, but taking out 12 bytes for primary and secondary headers

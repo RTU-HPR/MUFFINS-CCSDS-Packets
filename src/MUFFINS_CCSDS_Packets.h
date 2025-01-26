@@ -57,6 +57,22 @@ byte *create_ccsds_secondary_header(const uint32_t &epoch_time, const uint16_t &
  */
 byte *create_ccsds_telemetry_packet(const uint16_t &apid, const uint16_t &sequence_count, const uint32_t &epoch_time, const uint16_t &subseconds, const uint16_t &data_values_count, const String *data_format, const Converter *data_values, uint16_t &data_length);
 
+
+/**
+ * @brief Create a full CCSDS telecommand packet with no checksum
+ * 
+ * @param apid Application ID
+ * @param sequence_count Sequence count
+ * @param packet_id Packet ID
+ * @param data_values_count Number of data values
+ * @param data_format Array of string of data types. Example: {"float", "uint8", "uint16", "uint32"}
+ * @param data_values Pointer to data values array
+ * @param data_length Length of data field
+ * @return Pointer to telecommand packet
+ * @note The CCSDS packet must be deleted after use
+ */
+byte *create_ccsds_telecommand_packet(const uint16_t &apid, const uint16_t &sequence_count, const uint16_t &packet_id, const uint16_t &data_values_count, const String *data_format, const Converter *data_values, uint16_t &data_length);
+
 /**
  * @brief Create a full CCSDS telecommand packet with no checksum
  * @param apid Application ID
