@@ -15,7 +15,7 @@ namespace BalloonTelemetry
      */
     void get_values(const byte *data, uint16_t &received_packet_id)
     {
-      received_packet_id = data[0] << 8 | data[1];
+      received_packet_id = uint16_from_bytes(data[0], data[1]);
     }
 
     /**
@@ -36,7 +36,7 @@ namespace BalloonTelemetry
         const uint16_t &subseconds,
         const uint16_t &received_packet_id)
     {
-      uint16_t apid = BalloonAPID::TELECOMMAND_ACKNOWLEDGEMENT;
+      uint16_t apid = APID::BALLOON_TELECOMMAND_ACKNOWLEDGEMENT;
       uint16_t data_values_count = 1;
       Converter data_values[data_values_count] = {{.ui16 = received_packet_id}};
       String data_format[data_values_count] = {"uint16"};
@@ -75,19 +75,19 @@ namespace BalloonTelemetry
         uint8_t &gps_lock,
         uint8_t &uplink_status)
     {
-      uptime = data[0] << 8 | data[1];
-      battery_voltage = data[2] << 8 | data[3];
-      uplink_rssi = data[4];
-      error_binary_string = data[5] << 8 | data[6];
+      uptime = uint16_from_bytes(data[0], data[1]);
+      battery_voltage = float_from_bytes(data[2], data[3], data[4], data[5]);
+      uplink_rssi = uint8_from_bytes(data[6]);
+      error_binary_string = uint16_from_bytes(data[7], data[8]);
 
       // Flight mode is first 2 bits
-      flight_mode = (data[7] >> 6) & 0x03;
+      flight_mode = (data[9] >> 6) & 0x03;
 
       // GPS lock is next 1 bit
-      gps_lock = (data[7] >> 5) & 0x01;
+      gps_lock = (data[9] >> 5) & 0x01;
 
       // Uplink status is next 1 bit
-      uplink_status = (data[7] >> 4) & 0x01;
+      uplink_status = (data[9] >> 4) & 0x01;
 
       // Remaining 4 bits are reserved
     }
@@ -125,7 +125,7 @@ namespace BalloonTelemetry
     {
       const uint8_t combined_bitmask = (flight_mode << 6) | (gps_lock << 5) | (uplink_status << 4) | 0x0F;
 
-      uint16_t apid = BalloonAPID::SYSTEM_STATUS;
+      uint16_t apid = APID::BALLOON_SYSTEM_STATUS;
       uint16_t data_values_count = 5;
       Converter data_values[data_values_count] = {
           {.ui16 = uptime},
@@ -166,12 +166,12 @@ namespace BalloonTelemetry
         CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate,
         float &barometer_reference_pressure)
     {
-      lora_frequency = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-      lora_tx_power = static_cast<CCSDS_Enums::LoRa_TX_Power>(data[4]);
-      lora_spreading_factor = static_cast<CCSDS_Enums::LoRa_Spreading_Factor>(data[5]);
-      lora_bandwidth = static_cast<CCSDS_Enums::LoRa_Bandwidth>(data[6]);
-      lora_coding_rate = static_cast<CCSDS_Enums::LoRa_Coding_Rate>(data[7]);
-      barometer_reference_pressure = data[8] << 24 | data[9] << 16 | data[10] << 8 | data[11];
+      lora_frequency = float_from_bytes(data[0], data[1], data[2], data[3]);
+      lora_tx_power = static_cast<CCSDS_Enums::LoRa_TX_Power>(uint8_from_bytes(data[4]));
+      lora_spreading_factor = static_cast<CCSDS_Enums::LoRa_Spreading_Factor>(uint8_from_bytes(data[5]));
+      lora_bandwidth = static_cast<CCSDS_Enums::LoRa_Bandwidth>(uint8_from_bytes(data[6]));
+      lora_coding_rate = static_cast<CCSDS_Enums::LoRa_Coding_Rate>(uint8_from_bytes(data[7]));
+      barometer_reference_pressure = float_from_bytes(data[8], data[9], data[10], data[11]);
     }
 
     /**
@@ -202,7 +202,7 @@ namespace BalloonTelemetry
         const CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate,
         const float &barometer_reference_pressure)
     {
-      uint16_t apid = BalloonAPID::CONFIGURATION;
+      uint16_t apid = APID::BALLOON_CONFIGURATION;
       uint16_t data_values_count = 6;
       Converter data_values[data_values_count] = {
           {.f = lora_frequency},
@@ -242,11 +242,11 @@ namespace BalloonTelemetry
         float &barometer_altitude,
         uint8_t &satellites)
     {
-      latitude = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-      longitude = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-      gps_altitude = data[8] << 24 | data[9] << 16 | data[10] << 8 | data[11];
-      barometer_altitude = data[12] << 24 | data[13] << 16 | data[14] << 8 | data[15];
-      satellites = data[16];
+      latitude = float_from_bytes(data[0], data[1], data[2], data[3]);
+      longitude = float_from_bytes(data[4], data[5], data[6], data[7]);
+      gps_altitude = float_from_bytes(data[8], data[9], data[10], data[11]);
+      barometer_altitude = float_from_bytes(data[12], data[13], data[14], data[15]);
+      satellites = uint8_from_bytes(data[16]);
     }
 
     /**
@@ -275,7 +275,7 @@ namespace BalloonTelemetry
         const float &barometer_altitude,
         const uint8_t &satellites)
     {
-      uint16_t apid = BalloonAPID::LOCATION;
+      uint16_t apid = APID::BALLOON_LOCATION;
       uint16_t data_values_count = 5;
       Converter data_values[data_values_count] = {
           {.f = latitude},
@@ -318,13 +318,13 @@ namespace BalloonTelemetry
         float &rwc_battery_voltage,
         int8_t &rwc_temperature)
     {
-      heading = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-      angular_velocity_x = data[4] << 8 | data[5];
-      angular_velocity_y = data[6] << 8 | data[7];
-      angular_velocity_z = data[8] << 8 | data[9];
-      motor_angular_velocity = data[10] << 24 | data[11] << 16 | data[12] << 8 | data[13];
-      rwc_battery_voltage = data[14] << 8 | data[15];
-      rwc_temperature = data[16];
+      heading = float_from_bytes(data[0], data[1], data[2], data[3]);
+      angular_velocity_x = int16_from_bytes(data[4], data[5]);
+      angular_velocity_y = int16_from_bytes(data[6], data[7]);
+      angular_velocity_z = int16_from_bytes(data[8], data[9]);
+      motor_angular_velocity = float_from_bytes(data[10], data[11], data[12], data[13]);
+      rwc_battery_voltage = float_from_bytes(data[14], data[15], data[16], data[17]);
+      rwc_temperature = int8_from_bytes(data[18]);
     }
 
     /**
@@ -357,16 +357,16 @@ namespace BalloonTelemetry
         const float &rwc_battery_voltage,
         const int8_t &rwc_temperature)
     {
-      uint16_t apid = BalloonAPID::SUBSYSTEM_1_STATUS;
+      uint16_t apid = APID::BALLOON_SUBSYSTEM_1_STATUS;
       uint16_t data_values_count = 7;
       Converter data_values[data_values_count] = {
           {.f = heading},
-          {.ui16 = angular_velocity_x},
-          {.ui16 = angular_velocity_y},
-          {.ui16 = angular_velocity_z},
+          {.i16 = angular_velocity_x},
+          {.i16 = angular_velocity_y},
+          {.i16 = angular_velocity_z},
           {.f = motor_angular_velocity},
           {.f = rwc_battery_voltage},
-          {.ui8 = rwc_temperature}};
+          {.i8 = rwc_temperature}};
       String data_format[data_values_count] = {"float", "int16", "int16", "int16", "float", "float", "int8"};
       uint16_t data_length = 0;
 

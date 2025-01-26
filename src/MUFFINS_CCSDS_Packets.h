@@ -6,15 +6,23 @@
  */
 union Converter
 {
-  int32_t ui32;
-  int16_t ui16;
-  int8_t ui8;
+  int32_t i32;
+  int16_t i16;
+  int8_t i8;
   uint32_t ui32;
   uint16_t ui16;
   uint8_t ui8;
   float f;
   byte b[4];
 };
+
+float float_from_bytes(const byte byte1, const byte byte2, const byte byte3, const byte byte4);
+uint8_t uint8_from_bytes(const byte byte1);
+uint16_t uint16_from_bytes(const byte byte1, const byte byte2);
+uint32_t uint32_from_bytes(const byte byte1, const byte byte2, const byte byte3, const byte byte4);
+int8_t int8_from_bytes(const byte byte1);
+int16_t int16_from_bytes(const byte byte1, const byte byte2);
+int32_t int32_from_bytes(const byte byte1, const byte byte2, const byte byte3, const byte byte4);
 
 /**
  * @brief Create a CCSDS primary header

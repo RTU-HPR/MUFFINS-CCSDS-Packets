@@ -3,7 +3,7 @@
 
 using namespace CCSDS_Enums;
 
-namespace BaseStation1Telemetry
+namespace BaseStation3Telemetry
 {
   namespace TelecommandAckowledgement
   {
@@ -15,7 +15,7 @@ namespace BaseStation1Telemetry
      */
     void get_values(const byte *data, uint16_t &received_packet_id)
     {
-      received_packet_id = data[0] << 8 | data[1];
+      received_packet_id = uint16_from_bytes(data[0], data[1]);
     }
 
     /**
@@ -36,7 +36,7 @@ namespace BaseStation1Telemetry
         const uint16_t &subseconds,
         const uint16_t &received_packet_id)
     {
-      uint16_t apid = BaseStation3APID::TELECOMMAND_ACKNOWLEDGEMENT;
+      uint16_t apid = APID::BASE_STATION_3_TELECOMMAND_ACKNOWLEDGEMENT;
       uint16_t data_values_count = 1;
       Converter data_values[data_values_count] = {{.ui16 = received_packet_id}};
       String data_format[data_values_count] = {"uint16"};
@@ -71,13 +71,13 @@ namespace BaseStation1Telemetry
         uint16_t &error_binary_string,
         uint8_t &transmitting_allowed)
     {
-      uptime = data[0] << 8 | data[1];
-      battery_voltage = data[2] << 8 | data[3];
-      wifi_rssi = data[4];
-      error_binary_string = data[5] << 8 | data[6];
+      uptime = uint16_from_bytes(data[0], data[1]);
+      battery_voltage = float_from_bytes(data[2], data[3], data[4], data[5]);
+      wifi_rssi = uint8_from_bytes(data[6]);
+      error_binary_string = uint16_from_bytes(data[7], data[8]);
 
-      // First bit is transmitting allowed
-      transmitting_allowed = (data[7] & 0x80) >> 7;
+      // Highest bit is transmitting allowed
+      transmitting_allowed = (data[9] & 0b10000000) >> 7;
 
       // Remaining 7 bits are reserved
     }
@@ -109,8 +109,8 @@ namespace BaseStation1Telemetry
         const uint8_t &transmitting_allowed)
     {
       const uint8_t combined_bitmask = (transmitting_allowed << 7);
-      
-      uint16_t apid = BaseStation3APID::SYSTEM_STATUS;
+
+      uint16_t apid = APID::BASE_STATION_3_SYSTEM_STATUS;
       uint16_t data_values_count = 5;
       Converter data_values[data_values_count] = {
           {.ui16 = uptime},
@@ -149,11 +149,11 @@ namespace BaseStation1Telemetry
         CCSDS_Enums::LoRa_Bandwidth &lora_bandwidth,
         CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate)
     {
-      lora_frequency = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-      lora_tx_power = static_cast<CCSDS_Enums::LoRa_TX_Power>(data[4]);
-      lora_spreading_factor = static_cast<CCSDS_Enums::LoRa_Spreading_Factor>(data[5]);
-      lora_bandwidth = static_cast<CCSDS_Enums::LoRa_Bandwidth>(data[6]);
-      lora_coding_rate = static_cast<CCSDS_Enums::LoRa_Coding_Rate>(data[7]);
+      lora_frequency = float_from_bytes(data[0], data[1], data[2], data[3]);
+      lora_tx_power = static_cast<CCSDS_Enums::LoRa_TX_Power>(uint8_from_bytes(data[4]));
+      lora_spreading_factor = static_cast<CCSDS_Enums::LoRa_Spreading_Factor>(uint8_from_bytes(data[5]));
+      lora_bandwidth = static_cast<CCSDS_Enums::LoRa_Bandwidth>(uint8_from_bytes(data[6]));
+      lora_coding_rate = static_cast<CCSDS_Enums::LoRa_Coding_Rate>(uint8_from_bytes(data[7]));
     }
 
     /**
@@ -183,7 +183,7 @@ namespace BaseStation1Telemetry
         const CCSDS_Enums::LoRa_Bandwidth &lora_bandwidth,
         const CCSDS_Enums::LoRa_Coding_Rate &lora_coding_rate)
     {
-      uint16_t apid = BaseStation3APID::CONFIGURATION;
+      uint16_t apid = APID::BASE_STATION_3_CONFIGURATION;
       uint16_t data_values_count = 5;
       Converter data_values[data_values_count] = {
           {.f = lora_frequency},
@@ -220,10 +220,10 @@ namespace BaseStation1Telemetry
         float &gps_altitude,
         uint8_t &satellites)
     {
-      latitude = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-      longitude = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-      gps_altitude = data[8] << 24 | data[9] << 16 | data[10] << 8 | data[11];
-      satellites = data[12];
+      latitude = float_from_bytes(data[0], data[1], data[2], data[3]);
+      longitude = float_from_bytes(data[4], data[5], data[6], data[7]);
+      gps_altitude = float_from_bytes(data[8], data[9], data[10], data[11]);
+      satellites = uint8_from_bytes(data[12]);
     }
 
     /**
@@ -250,7 +250,7 @@ namespace BaseStation1Telemetry
         const float &gps_altitude,
         const uint8_t &satellites)
     {
-      uint16_t apid = BaseStation3APID::LOCATION;
+      uint16_t apid = APID::BASE_STATION_3_LOCATION;
       uint16_t data_values_count = 4;
       Converter data_values[data_values_count] = {
           {.f = latitude},
@@ -286,10 +286,10 @@ namespace BaseStation1Telemetry
         float &current_azimuth,
         float &current_elevation)
     {
-      target_azimuth = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-      target_elevation = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-      current_azimuth = data[8] << 24 | data[9] << 16 | data[10] << 8 | data[11];
-      current_elevation = data[12] << 24 | data[13] << 16 | data[14] << 8 | data[15];
+      target_azimuth = float_from_bytes(data[0], data[1], data[2], data[3]);
+      target_elevation = float_from_bytes(data[4], data[5], data[6], data[7]);
+      current_azimuth = float_from_bytes(data[8], data[9], data[10], data[11]);
+      current_elevation = float_from_bytes(data[12], data[13], data[14], data[15]);
     }
 
     /**
@@ -316,7 +316,7 @@ namespace BaseStation1Telemetry
         const float &current_azimuth,
         const float &current_elevation)
     {
-      uint16_t apid = BaseStation3APID::SUBSYSTEM_1_STATUS;
+      uint16_t apid = APID::BASE_STATION_3_SUBSYSTEM_1_STATUS;
       uint16_t data_values_count = 4;
       Converter data_values[data_values_count] = {
           {.f = target_azimuth},
@@ -346,7 +346,7 @@ namespace BaseStation1Telemetry
         const byte *data,
         uint16_t &time_since_last_ranging)
     {
-      time_since_last_ranging = data[0] << 8 | data[1];
+      time_since_last_ranging = uint16_from_bytes(data[0], data[1]);
     }
 
     /**
@@ -367,7 +367,7 @@ namespace BaseStation1Telemetry
         const uint16_t &subseconds,
         const uint16_t &time_since_last_ranging)
     {
-      uint16_t apid = BaseStation3APID::SUBSYSTEM_2_STATUS;
+      uint16_t apid = APID::BASE_STATION_3_SUBSYSTEM_2_STATUS;
       uint16_t data_values_count = 1;
       Converter data_values[data_values_count] = {{.ui16 = time_since_last_ranging}};
       String data_format[data_values_count] = {"uint16"};

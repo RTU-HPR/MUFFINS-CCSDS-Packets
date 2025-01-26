@@ -1,5 +1,46 @@
 #include "MUFFINS_CCSDS_Packets.h"
 
+float float_from_bytes(const byte byte1, const byte byte2, const byte byte3, const byte byte4)
+{
+  Converter converter;
+  // Switch byte order to go from big endian (CCSDS) to little endian (C++)
+  converter.b[0] = byte4;
+  converter.b[1] = byte3;
+  converter.b[2] = byte2;
+  converter.b[3] = byte1;
+  return converter.f;
+}
+
+uint8_t uint8_from_bytes(const byte byte1)
+{
+  return byte1;
+}
+
+uint16_t uint16_from_bytes(const byte byte1, const byte byte2)
+{
+  return byte1 << 8 | byte2;
+}
+
+uint32_t uint32_from_bytes(const byte byte1, const byte byte2, const byte byte3, const byte byte4)
+{
+  return byte1 << 24 | byte2 << 16 | byte3 << 8 | byte4;
+}
+
+int8_t int8_from_bytes(const byte byte1)
+{
+  return byte1;
+}
+
+int16_t int16_from_bytes(const byte byte1, const byte byte2)
+{
+  return byte1 << 8 | byte2;
+}
+
+int32_t int32_from_bytes(const byte byte1, const byte byte2, const byte byte3, const byte byte4)
+{
+  return byte1 << 24 | byte2 << 16 | byte3 << 8 | byte4;
+}
+
 byte *create_ccsds_primary_header(const uint16_t &apid, const uint16_t &sequence_count, const uint16_t &data_length)
 {
   // Packet version number - 3 bits total
